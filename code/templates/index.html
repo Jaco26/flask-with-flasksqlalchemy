@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Get Your Items Here!</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+  <div id="app">
+    <div class="container">
+      <app-nav></app-nav>
+      <div class="row text-center">
+        <component :is="activeComponent"></component>
+      </div>
+    </div>
+  </div>
+
+  <script src="../static/vendor/vue.js"></script>
+  <script src="../static/my-requests.js"></script>
+  <script src="../static/event-bus.js"></script>
+  <script src="../static/vue-components.js"></script>
+  <script src="../static/main.js"></script>
+  <script>
+
+  const app = new Vue({
+    el: '#app',
+    components: {
+      'app-nav': navbar,
+      'app-login': login,
+      'app-create-user': createUser,
+      'app-user-list': userList,
+    },
+    data: {
+      activeComponent: 'app-login'
+    },
+    methods: {
+      handleNav: function(component) {
+        this.activeComponent = component;
+      }
+    },
+    mounted: function() {
+      EventBus.$on('go-to', this.handleNav)
+    }
+  });
+
+  </script>
+</body>
+</html>
