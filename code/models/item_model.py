@@ -29,11 +29,11 @@ class ItemModel:
   def find_by_name(cls, name):
     connection = sqlite3.connect('data.db')
     cursor = connection.cursor()
-    query = "SELECT * FROM items WHERE name = ?"
+    query = "SELECT name, price FROM items WHERE name = ?"
     result = cursor.execute(query, (name,))
     row = result.fetchone()
     connection.close()
     if row:
       print(row)
-      return cls(row[1], row[2])
+      return cls(*row)
   
