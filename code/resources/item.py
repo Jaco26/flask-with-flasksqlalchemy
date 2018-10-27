@@ -12,7 +12,7 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
     help="This field cannot be left blank. Beep boop."
   )
     
-  # @jwt_required()
+  @jwt_required()
   def get(self, name):
     item = ItemModel.find_by_name(name)
     if item:
@@ -49,7 +49,7 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
         return { 'message': 'an error occured updating the item' }, 500
     return updated_item.json()
 
-  # @jwt_required()
+  @jwt_required()
   def delete(self, name):
     connection = sqlite3.connect('data.db')
     cursor = connection.cursor()
