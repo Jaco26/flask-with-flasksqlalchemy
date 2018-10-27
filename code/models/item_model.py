@@ -1,4 +1,3 @@
-import sqlite3
 from db import db
 
 class ItemModel(db.Model):
@@ -9,38 +8,22 @@ class ItemModel(db.Model):
   price = db.Column(db.Float(precision=2)) # db.Float(precision=<number of decimal places to round to>)
 
   def __init__(self, name, price):
-    print('price', price)
     self.name = name
     self.price = price
 
   def json(self):
     return { 'name': self.name, 'price': self.price }
 
-  def insert(self):
-    connection = sqlite3.connect('data.db')
-    cursor = connection.cursor()
-    query = "INSERT INTO items VALUES (NULL, ?, ?)"
-    cursor.execute(query, (self.name, self.price))
-    connection.commit()
-    connection.close() 
+  def save_to_db(self): # this is now an upsert
+    db.session.add(self)
+    db.session.commit()
 
-  def update(self):
-    connection = sqlite3.connect('data.db')
-    cursor = connection.cursor()
-    query = "UPDATE items SET price = ? WHERE name = ?"
-    cursor.execute(query, (self.price, self.name))
-    connection.commit()
-    connection.close() 
+  def delete_from_db(self):
+    db.session.delete(self)
+    db.session.commit()
 
   @classmethod
   def find_by_name(cls, name):
-    connection = sqlite3.connect('data.db')
-    cursor = connection.cursor()
-    query = "SELECT name, price FROM items WHERE name = ?"
-    result = cursor.execute(query, (name,))
-    row = result.fetchone()
-    connection.close()
-    if row:
-      print(row)
-      return cls(*row)
+    return cls.query.filter_by(name=name).first() # SELECT * FROM __tablename__ WHERE name = name LIMIT 1;
+
   

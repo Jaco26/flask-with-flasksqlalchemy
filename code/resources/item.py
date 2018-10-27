@@ -16,7 +16,6 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
   def get(self, name):
     item = ItemModel.find_by_name(name)
     if item:
-      print('item.json', item.json())
       return item.json(), 200
     return { 'message' : 'Item not found' }, 404
   
@@ -27,7 +26,7 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
     # item = { 'name': name, 'price': data['price'] }
     item = ItemModel(name, data['price'])
     try:
-      item.insert()
+      item.save_to_db()
     except:
       return { 'message': 'An error occurred inserting the item' }, 500
     return item.json(), 201
@@ -36,28 +35,32 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
     # create item or update an existing one
     data = Item.parser.parse_args() # return only the values from the request body which we specified
     item = ItemModel.find_by_name(name)
-    updated_item = ItemModel(name, data['price'])
     if item is None:
       try:
-        updated_item.insert() # python Dictionary update() method. SHOULD RESEACH BECAUSE DANGEROUS
+        item = ItemModel(name, data['price'])
       except:
         return { 'message': 'an error occured inserting the item' }, 500
     else:
       try:
-        updated_item.update()
+        item.price = data['price']
       except:
         return { 'message': 'an error occured updating the item' }, 500
-    return updated_item.json()
+    item.save_to_db()
+    return item.json()
 
   @jwt_required()
   def delete(self, name):
-    connection = sqlite3.connect('data.db')
-    cursor = connection.cursor()
-    query = "DELETE FROM items WHERE name = ?"
-    cursor.execute(query, (name,))
-    connection.commit()
-    connection.close() 
+    item = ItemModel.find_by_name(name)
+    if item:
+      item.delete_from_db()
     return { 'message': 'Item deleted' }
+    # connection = sqlite3.connect('data.db')
+    # cursor = connection.cursor()
+    # query = "DELETE FROM items WHERE name = ?"
+    # cursor.execute(query, (name,))
+    # connection.commit()
+    # connection.close() 
+    # return { 'message': 'Item deleted' }
 
 
 

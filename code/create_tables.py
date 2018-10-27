@@ -22,6 +22,5 @@ create_items_table = """
 
 cursor.execute(create_users_table)
 cursor.execute(create_items_table)
-
 connection.commit()
 connection.close()
