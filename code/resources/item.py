@@ -10,7 +10,12 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
     required=True, 
     help="This field cannot be left blank. Beep boop."
   )
-    
+  parser.add_argument('store_id', 
+    type=int, 
+    required=True, 
+    help="Every item needs a store_id."
+  )  
+  
   @jwt_required()
   def get(self, name):
     item = ItemModel.find_by_name(name)
@@ -23,7 +28,7 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
       return { 'message': 'An item with name {} already exists'.format(name)}, 400
     data = Item.parser.parse_args()
     # item = { 'name': name, 'price': data['price'] }
-    item = ItemModel(name, data['price'])
+    item = ItemModel(name, data['price'], data['store_id']) # same as **data
     try:
       item.save_to_db()
     except:
@@ -36,7 +41,7 @@ class Item(Resource): # all resources will be classes which inherit from flask_r
     item = ItemModel.find_by_name(name)
     if item is None:
       try:
-        item = ItemModel(name, data['price'])
+        item = ItemModel(name, **data) # same as data['price'], data['store_id']
       except:
         return { 'message': 'an error occured inserting the item' }, 500
     else:
